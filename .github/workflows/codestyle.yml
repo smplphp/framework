@@ -4,12 +4,14 @@ on:
   push:
     branches: [ main ]
   pull_request:
+    types: [ opened, synchronize, reopened, ready_for_review ]
   workflow_dispatch:
 
 jobs:
   codestyle:
     name: Code Style
     runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -18,9 +20,10 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.5'
+          tools: cs2pr
 
       - name: Install dependencies
         run: composer self-update && composer install && composer dump-autoload
 
       - name: Check code style
-        run: vendor/bin/php-cs-fixer fix --dry-run --diff
+        run: vendor/bin/php-cs-fixer fix --dry-run --format=checkstyle | cs2pr

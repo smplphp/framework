@@ -4,12 +4,14 @@ on:
   push:
     branches: [ main ]
   pull_request:
+    types: [ opened, synchronize, reopened, ready_for_review ]
   workflow_dispatch:
 
 jobs:
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -38,3 +40,9 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: build/report.junit.xml
+
+      - name: Annotate test results
+        if: ${{ !cancelled() }}
+        uses: mikepenz/action-junit-report@v6
+        with:
+          report_paths: build/report.junit.xml
