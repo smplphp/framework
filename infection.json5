@@ -6,6 +6,7 @@
     ]
   },
   "staticAnalysisTool": "phpstan",
+  "minMsi"            : 100,
   "logs"              : {
     "text": "build/infection.txt",
     "html": "build/infection.html"
